@@ -1,5 +1,12 @@
-from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
 
 
-def index(request):
-    return HttpResponse("Hello, world!")
+@login_required
+def default_landing(request):
+    return redirect("/overview")
+
+
+@login_required
+def overview(request):
+    return render(request, "overview.html")

@@ -17,7 +17,7 @@ def sign_in(request):
         return render(request, "signin.html", {"error": "Invalid username or password"})
 
     login(request, user)
-    return redirect("/dashboard")
+    return redirect("/overview")
 
 
 def sign_up(request):
@@ -42,7 +42,7 @@ def sign_up(request):
         user.save()
         login(request, user)
         print("User successfully registered. Redirecting now.")
-        return redirect("/dashboard")
+        return redirect("/overview")
     except Exception as e:
         if settings.DEBUG:
             return render(request, "signup.html", {"error": str(e)})
