@@ -1,0 +1,57 @@
+#sidebar {
+    position: relative;
+    width: 5rem;
+    background-color: red;
+    height: 100vh;
+}
+
+#avatar {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 1px solid black;
+    border-radius: 50%;
+    background-color: #c3c3c3;
+    cursor: pointer;
+    font-size: 2rem;
+}
+
+#menu {
+    visibility: hidden;
+    width: 80px;
+    background-color: #f3f3f3;
+    color: black;
+    border: 1px solid black;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 1rem;
+    text-align: center;
+}
+
+#menu ul {
+    padding: 0;
+    margin: 0;
+    margin-top: 5px;
+}
+
+#menu a {
+    text-decoration: none;
+    color: inherit;
+}
+
+#menu li {
+    list-style: none;
+    padding-bottom: 5px;
+}
+
+#menu li:hover {
+    cursor: pointer;
+    background-color: #c3c3c3;
+}

@@ -1,23 +1,8 @@
 from django.conf import settings
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 
 from accounts.models import CustomUser
-
-
-def sign_in(request):
-    if request.method == "GET":
-        return render(request, "signin.html")
-
-    email = request.POST["email"]
-    password = request.POST["password"]
-    user = authenticate(request, email=email, password=password)
-
-    if user is None:
-        return render(request, "signin.html", {"error": "Invalid username or password"})
-
-    login(request, user)
-    return redirect("/overview")
 
 
 def sign_up(request):
@@ -52,3 +37,23 @@ def sign_up(request):
                 "signup.html",
                 {"error": "There was a problem registering your account"},
             )
+
+
+def sign_in(request):
+    if request.method == "GET":
+        return render(request, "signin.html")
+
+    email = request.POST["email"]
+    password = request.POST["password"]
+    user = authenticate(request, email=email, password=password)
+
+    if user is None:
+        return render(request, "signin.html", {"error": "Invalid username or password"})
+
+    login(request, user)
+    return redirect("/overview")
+
+
+def sign_out(request):
+    logout(request)
+    return redirect("/account/signin")
