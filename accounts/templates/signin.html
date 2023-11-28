@@ -1,0 +1,31 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'authentication.css' %}">
+</head>
+
+<body>
+    <div class="login-container">
+        <form method="post" action="{% url 'accounts:signin' %}">
+            {% csrf_token %}
+            {% if form.errors %}
+            <p class="error">Your username and password didn't match. Please try again.</p>
+            {% endif %}
+            <div class="form-group">
+                <label for="id_email">Email:</label>
+                <input type="text" name="email" id="id_email" required>
+            </div>
+            <div class="form-group">
+                <label for="id_password">Password:</label>
+                <input type="password" name="password" id="id_password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</body>
+
+</html>
