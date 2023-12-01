@@ -1,0 +1,18 @@
+#navbar {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#navbar .icon-button {
+    background-color: transparent;
+    border: none;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-top: 0.25rem;
+    margin-left: 0.675rem;
+}
+
+#navbar .icon-button:last-child {
+    margin-right: 0.675rem;
+}

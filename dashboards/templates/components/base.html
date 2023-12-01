@@ -7,6 +7,7 @@
     <title>Discovered Check</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/sidebar.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 
@@ -17,8 +18,11 @@
             <script src="{% static 'js/sidebar.js' %}"></script>
         </div>
         <div id="main-content">
-            {% block content %}
-            {% endblock %}
+            {%include 'components/navbar.html' %}
+            <div id="content">
+                {% block content %}
+                {% endblock %}
+            </div>
         </div>
     </div>
 </body>
