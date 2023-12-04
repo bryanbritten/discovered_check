@@ -101,7 +101,6 @@ select, input[type="text"], input[type="date"] {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    margin-bottom: 15px;
 }
 
 .date-input-container .input-row {
@@ -116,4 +115,24 @@ select, input[type="text"], input[type="date"] {
 .input-row label {
     font-weight: bold;
     font-size: 0.875rem;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.modal-button {
+    padding: 8px 15px;
+    margin-left: 10px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.primary-button {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
 }
