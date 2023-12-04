@@ -1,0 +1,22 @@
+<div id="upload-modal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close-button" onclick="toggleModal('upload-modal')">
+            &times;
+        </button>
+        <div class="modal-header">
+            <div class="modal-title">Upload Data</div>
+        </div>
+        <div class="modal-body">
+            <div class="tab">
+                <button id="api-tab" class="tablinks" onclick="openTab(event, 'api')">API</button>
+                <button id="pgn-tab" class="tablinks" onclick="openTab(event, 'pgn')">PGN</button>
+            </div>
+            <div id="api" class="tabcontent">
+                <p>Content for api upload</p>
+            </div>
+            <div id="pgn" class="tabcontent">
+                <p>Content for pgn upload</p>
+            </div>
+        </div>
+    </div>
+</div>

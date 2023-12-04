@@ -8,17 +8,21 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/sidebar.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/modal.css' %}">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="{% static 'js/sidebar.js' %}"></script>
+    <script src="{% static 'js/modal.js' %}"></script>
 </head>
 
 <body>
     <div class="container">
         <div id="sidebar">
             {% include 'components/sidebar.html' %}
-            <script src="{% static 'js/sidebar.js' %}"></script>
         </div>
         <div id="main-content">
-            {%include 'components/navbar.html' %}
+            {% include 'components/upload_modal.html' %}
+            {% include 'components/bug_modal.html' %}
+            {% include 'components/navbar.html' %}
             <div id="content">
                 {% block content %}
                 {% endblock %}
