@@ -12,7 +12,27 @@
                 <button id="pgn-tab" class="tablinks" onclick="openTab(event, 'pgn')">PGN</button>
             </div>
             <div id="api" class="tabcontent">
-                <p>Content for api upload</p>
+                <div class="input-row">
+                    <label for="platform-select">Platform:</label>
+                    <select id="platform-select">
+                        <option value="chess.com">chess.com</option>
+                        <option value="lichess.org" disabled>lichess.org</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <label for="username-input">Username:</label>
+                    <input type="text" id="username-input" placeholder="username">
+                </div>
+                <div class="date-input-container">
+                    <div class="input-row">
+                        <label for="start-date">Start Date:</label>
+                        <input type="date" id="start-date" class="date-input">
+                    </div>
+                    <div class="input-row">
+                        <label for="end-date">End Date:</label>
+                        <input type="date" id="end-date" class="date-input">
+                    </div>
+                </div>
             </div>
             <div id="pgn" class="tabcontent">
                 <p>Content for pgn upload</p>

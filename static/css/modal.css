@@ -84,3 +84,36 @@
 .tabcontent:last-child {
     display: none;
 }
+
+select, input[type="text"], input[type="date"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.input-row {
+    margin-bottom: 15px;
+}
+
+.date-input-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.date-input-container .input-row {
+    width: calc(50% - 5px);
+    box-sizing: border-box;
+}
+
+.date-input {
+    flex-grow: 1;
+}
+
+.input-row label {
+    font-weight: bold;
+    font-size: 0.875rem;
+}
