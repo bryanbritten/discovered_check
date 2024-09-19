@@ -1,3 +1,83 @@
 from django.db import models
 
-# Create your models here.
+class Opening(models.Model):
+    eco = models.CharField(max_length=3)
+    name = models.CharField(max_length=255)
+    notation = models.CharField(max_length=255)
+    ply = models.IntegerField()
+
+class Game(models.Model):
+    # TODO: get a full list of game status choices for enumeration
+    GAME_STATUS_CHOICES = [
+        ('mate', 'Checkmate'),
+        ('draw', 'Draw'),
+        ('resign', 'Resignation'),
+        ('stalemate', 'Stalemate'),
+        ('timeout', 'Timeout'),
+    ]
+
+    SPEED_CHOICES = [
+        ('blitz', 'Blitz'),
+        ('bullet', 'Bullet'),
+        ('ultrabullet', 'Ultra Bullet'),
+        ('classical', 'Classical'),
+        ('correspondence', 'Correspondence'),
+        ('rapid', 'Rapid'),
+    ]
+
+    PERF_CHOICES = [
+        ('blitz', 'Blitz'),
+        ('bullet', 'Bullet'),
+        ('ultrabullet', 'Ultra Bullet'),
+        ('classical', 'Classical'),
+        ('correspondence', 'Correspondence'),
+        ('rapid', 'Rapid'),
+        ('chess960', 'Chess960'),
+        ('crazyhouse', 'Crazyhouse'),
+        ('antichess', 'Antichess'),
+        ('atomic', 'Atomic'),
+        ('horde', 'Horde'),
+        ('kingOfTheHill', 'King of the Hill'),
+        ('racingKings', 'Racing Kings'),
+        ('threeCheck', 'Three-check'),
+    ]
+
+    COLORS = [
+        ('black', 'Black'),
+        ('white', 'White'),
+    ]
+
+    id = models.CharField(max_length=12, primary_key=True)
+    game_id = models.CharField(max_length=8)
+    rated = models.BooleanField()
+    variant = models.CharField(max_length=255)
+    speed = models.CharField(max_length=20, choices=SPEED_CHOICES)
+    perf = models.CharField(max_length=20, choices=PERF_CHOICES)
+    status = models.CharField(max_length=255)
+    white_player = models.CharField(max_length=255)
+    white_rating_before = models.SmallIntegerField()
+    white_rating_after = models.SmallIntegerField()
+    black_player = models.CharField(max_length=255)
+    black_rating_before = models.SmallIntegerField()
+    black_rating_after = models.SmallIntegerField()
+    winner = models.CharField(max_length=5, choices=COLORS)
+    opening_id = models.ForeignKey(Opening, blank=True, null=True, on_delete=models.SET_NULL)
+    created_at = models.DateTimeField()
+    lastMoveAt = models.DateTimeField()
+    initial_clock = models.SmallIntegerField()
+    increment = models.SmallIntegerField()
+    total_time = models.SmallIntegerField()
+
+class Move(models.Model):
+    COLORS = [
+        ('black', 'Black'),
+        ('white', 'White'),
+    ]
+
+    game_id = models.ForeignKey(Game, on_delete=models.CASCADE)
+    move_number = models.SmallIntegerField()
+    move_notation = models.CharField(max_length=10)
+    color = models.CharField(max_length=5, choices=COLORS)
+    clock_start = models.SmallIntegerField()
+    clock_end = models.SmallIntegerField()
+    time_spent = models.SmallIntegerField()
