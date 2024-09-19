@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "discovered-check"
+version = "0.1.0"
+description = "A web-based chess analytics platform focusing on human-centered analysis"
+authors = ["Bryan <85406498+bryanbritten@users.noreply.github.com>"]
+license = "GNU GPL v2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "^5.1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
