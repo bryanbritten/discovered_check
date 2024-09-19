@@ -1,2 +1,4 @@
 .python-version
 .env
+db.sqlite3
+__pycache__/
