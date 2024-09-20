@@ -76,8 +76,8 @@ class Move(models.Model):
 
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     move_number = models.SmallIntegerField()
-    move_notation = models.CharField(max_length=10)
+    move = models.CharField(max_length=10)
     color = models.CharField(max_length=5, choices=COLORS)
-    clock_start = models.SmallIntegerField()
-    clock_end = models.SmallIntegerField()
-    time_spent = models.SmallIntegerField()
+    clock_start = models.SmallIntegerField(blank=True, null=True)
+    clock_end = models.SmallIntegerField(blank=True, null=True)
+    time_spent = models.SmallIntegerField(blank=True, null=True)
