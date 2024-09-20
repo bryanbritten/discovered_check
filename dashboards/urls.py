@@ -8,4 +8,5 @@ urlpatterns = [
     path('time/', views.time, name='time'),
     path('tactics/', views.tactics, name='tactics'),
     path('openings/', views.openings, name='openings'),
+    path('fetch_games_from_api/', views.fetch_games_from_api, name='fetch_games_from_api'),
 ]
