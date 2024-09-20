@@ -74,7 +74,7 @@ class Move(models.Model):
         ('white', 'White'),
     ]
 
-    game_id = models.ForeignKey(Game, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
     move_number = models.SmallIntegerField()
     move_notation = models.CharField(max_length=10)
     color = models.CharField(max_length=5, choices=COLORS)
