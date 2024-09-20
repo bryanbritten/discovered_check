@@ -60,7 +60,7 @@ class Game(models.Model):
     black_player = models.CharField(max_length=255)
     black_rating_before = models.SmallIntegerField()
     black_rating_after = models.SmallIntegerField()
-    winner = models.CharField(max_length=5, choices=COLORS)
+    winner = models.CharField(max_length=5, choices=COLORS, blank=True, null=True)
     opening = models.ForeignKey(Opening, blank=True, null=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField()
     last_move_at = models.DateTimeField()
