@@ -57,14 +57,13 @@ def Callback(request):
         user.set_unusable_password()
         user.save()
     
-    token = AuthToken.objects.create(
-        user=user,
-        access_token=access_token,
-        token_acquired_at=token_response.get('token_acquired_at', datetime.now(tz=timezone.utc)),
-        token_expires_at=token_response.get(
+    token, _ = AuthToken.objects.get_or_create(user=user)
+    token.access_token=access_token
+    token.token_acquired_at=token_response.get('token_acquired_at', datetime.now(tz=timezone.utc))
+    token.token_expires_at=token_response.get(
             'token_expires_at', datetime.now(tz=timezone.utc) + timedelta(days=14)
-        ), 
-    )
+        )
+    token.save()
     login(request, user)
     return redirect('dashboards:overview')
 
