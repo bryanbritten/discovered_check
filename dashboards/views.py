@@ -7,7 +7,8 @@ from django.views.decorators.http import require_POST
 
 from games.services import fetch_games_from_api_service, fetch_games_from_db_service
 
-def redirect_to_overview(request):
+@login_required
+def root(request):
     return redirect('dashboards:overview')
 
 @login_required
@@ -19,16 +20,20 @@ def overview(request):
     }
     return render(request, 'dashboards/overview.html', context)
 
+@login_required
 def time(request):
     return HttpResponse(f"The time is {datetime.now().isoformat()}") 
 
+@login_required
 def tactics(request):
     return HttpResponse("This page will eventually show analyses of tactics for your games.")
 
+@login_required
 def openings(request):
     return HttpResponse("This page will eventually show analyses of openings for your games.")
 
 @require_POST
+@login_required
 def fetch_games_from_api(request):
     fetch_games_from_api_service(username='bbritten')
     return redirect('dashboards:overview')
