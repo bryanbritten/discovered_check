@@ -3,10 +3,10 @@ import hashlib
 import base64
 import requests
 
+from accounts.models import AuthToken, CustomUser
 
 def create_verifier():
     return secrets.token_urlsafe(64)
-
 
 def create_challenge(verifier):
     verifier_bytes = verifier.encode('utf-8')
@@ -33,3 +33,10 @@ def get_lichess_user_email(access_token):
     }
     response = requests.get(user_url, headers=headers)
     return response.json()
+
+def revoke_token(user: CustomUser) -> None:
+    token = AuthToken.objects.get(user=user)
+    token.access_token = None
+    token.token_acquired_at = None
+    token.token_expires_at = None
+    token.save()

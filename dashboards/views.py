@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
@@ -9,6 +10,7 @@ from games.services import fetch_games_from_api_service, fetch_games_from_db_ser
 def redirect_to_overview(request):
     return redirect('dashboards:overview')
 
+@login_required
 def overview(request):
     games = fetch_games_from_db_service(username='bbritten')
     context = {

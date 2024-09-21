@@ -49,3 +49,13 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+class AuthToken(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    access_token = models.CharField(max_length=255, blank=True, null=True)
+    token_acquired_at = models.DateTimeField(blank=True, null=True)
+    token_expires_at = models.DateTimeField(blank=True, null=True)
+    
+    def __str__(self):
+        return f'{self.user.email}\'s token'

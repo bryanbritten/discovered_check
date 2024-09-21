@@ -1,11 +1,19 @@
+from datetime import datetime, timedelta, timezone
 import requests
 from accounts.services import (
-    create_verifier, create_challenge, get_lichess_token, get_lichess_user_email
+    create_verifier,
+    create_challenge,
+    get_lichess_token,
+    get_lichess_user_email,
+    revoke_token
 )
 from django.shortcuts import redirect, render
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from accounts.models import AuthToken, CustomUser
 
 
-def login(request):
+def Login(request):
     if request.method == 'POST':
         verifier = create_verifier()
         challenge = create_challenge(verifier)
@@ -23,7 +31,7 @@ def login(request):
 
     return render(request, 'accounts/login.html')
 
-def callback(request):
+def Callback(request):
     verifier = request.session['verifier']
 
     if not verifier:
@@ -41,15 +49,33 @@ def callback(request):
     
     user_info = get_lichess_user_email(access_token)
     email = user_info.get('email')
-    print(f'User email: {email}')
+    if not email:
+        return redirect(request, 'accounts/error.html', {'error': 'No email found in response'})
+    
+    user, created = CustomUser.objects.get_or_create(email=email)
+    if created:
+        user.set_unusable_password()
+        user.save()
+    
+    token = AuthToken.objects.create(
+        user=user,
+        access_token=access_token,
+        token_acquired_at=token_response.get('token_acquired_at', datetime.now(tz=timezone.utc)),
+        token_expires_at=token_response.get(
+            'token_expires_at', datetime.now(tz=timezone.utc) + timedelta(days=14)
+        ), 
+    )
+    login(request, user)
     return redirect('dashboards:overview')
 
-def logout(request):
-    print('logging out the user')
+def Logout(request):
+    revoke_token(request.user)
+    logout(request)
     return redirect('accounts:login')
 
-def signup(request):
+def Signup(request):
     return render(request, 'accounts/signup.html')
 
-def profile(request):
+@login_required
+def Profile(request):
     return render(request, 'accounts/profile.html')
