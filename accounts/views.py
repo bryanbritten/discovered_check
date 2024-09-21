@@ -14,22 +14,23 @@ from accounts.models import AuthToken, CustomUser
 
 
 def Login(request):
-    if request.method == 'POST':
-        verifier = create_verifier()
-        challenge = create_challenge(verifier)
-        request.session['verifier'] = verifier
-        params = {
-            'client_id': 'discoveredcheck.io',
-            'response_type': 'code',
-            'scope': 'email:read',
-            'redirect_uri': request.build_absolute_uri('/accounts/callback/'),
-            'code_challenge': challenge,
-            'code_challenge_method': 'S256',
-        }
-        lichess_oauth_url = f'https://lichess.org/oauth?{requests.compat.urlencode(params)}'
-        return redirect(lichess_oauth_url)
+    if request.method == 'GET':
+        return render(request, 'accounts/login.html')
 
-    return render(request, 'accounts/login.html')
+    verifier = create_verifier()
+    challenge = create_challenge(verifier)
+    request.session['verifier'] = verifier
+    params = {
+        'client_id': 'discoveredcheck.io',
+        'response_type': 'code',
+        'scope': 'email:read',
+        'redirect_uri': request.build_absolute_uri('/accounts/callback/'),
+        'code_challenge': challenge,
+        'code_challenge_method': 'S256',
+    }
+    lichess_oauth_url = f'https://lichess.org/oauth?{requests.compat.urlencode(params)}'
+    return redirect(lichess_oauth_url)
+
 
 def Callback(request):
     verifier = request.session['verifier']
