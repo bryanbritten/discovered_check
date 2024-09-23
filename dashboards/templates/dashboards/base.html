@@ -12,7 +12,9 @@
         <div id="main-container">
             <div id="navbar"></div>
             <div id="content">
-                <div id="sidebar"></div>
+                <div id="sidebar">
+                    {% include 'dashboards/sidebar.html' %}
+                </div>
                 <div id="canvas">
                     {% block content %}
                     {% endblock %}
