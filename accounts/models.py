@@ -7,24 +7,23 @@ class CustomUserManager(BaseUserManager):
     instead of usernames.
     """
 
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(self, username, password=None, **extra_fields):
         """
-        Create and save a user with the given email and password.
+        Create and save a user with the given username and password.
         """
         
-        if not email:
-            raise ValueError('The Email field must be set')
+        if not username:
+            raise ValueError('The username field must be set')
         
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(username=username, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
         
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
+    def create_superuser(self, username, password=None, **extra_fields):
         """
-        Create and save a superuser with the given email and password.
+        Create and save a superuser with the given username and password.
         """
         
         extra_fields.setdefault('is_staff', True)
@@ -36,19 +35,19 @@ class CustomUserManager(BaseUserManager):
         if not extra_fields.get('is_superuser'):
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self.create_user(email, password, **extra_fields)
+        return self.create_user(username, password, **extra_fields)
 
 class CustomUser(AbstractUser):
-    username = None
-    email = models.EmailField(unique=True)
+    # currently Discovered Check doesn't collect or use email, but it's here for future use
+    email = models.EmailField(unique=True, blank=True, null=True)
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
 
     objects: CustomUserManager = CustomUserManager() 
 
     def __str__(self):
-        return self.email
+        return self.username
 
 
 class AuthToken(models.Model):
