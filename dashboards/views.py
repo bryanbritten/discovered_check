@@ -22,6 +22,7 @@ def root(request):
 def overview(request):
     games = fetch_games_from_db_service(username='bbritten')
     context = {
+        "username": request.user.username,
         "games": games,
         "num_games": len(games),
     }

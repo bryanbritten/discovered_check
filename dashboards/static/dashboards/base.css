@@ -18,7 +18,28 @@ body {
     height: 3vh;
     width: 100vw;
     overflow: hidden;
-    background-color: blue;
+    background-color: #212529;
+}
+
+#navbar-container {
+    display: flex;
+    flex-flow: row nowrap;
+    height: 100%;
+    width: 100%;
+}
+
+#logo {
+    flex-grow: 1;
+    flex-shrink: 0;
+    height: 100%;
+}
+
+#menu {
+    flex-grow: 0;
+    flex-shrink: 0;
+    height: 100%;
+    width: 10vw;
+    color: white;
 }
 
 #content {
