@@ -8,8 +8,9 @@ from django.contrib.auth.decorators import login_required
 from accounts.models import CustomUser
 
 from accounts.services import (
-    create_verifier,
     create_challenge,
+    create_verifier,
+    create_or_update_user_profile,
     get_lichess_token,
     get_lichess_user,
     store_token,
@@ -64,6 +65,7 @@ def Callback(request):
         user.save()
     
     store_token(user, token_response)
+    create_or_update_user_profile(user, user_info)
     login(request, user)
     return redirect('dashboards:overview')
 

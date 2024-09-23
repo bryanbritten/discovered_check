@@ -6,7 +6,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
-from accounts.models import AuthToken, CustomUser
+from accounts.models import AuthToken, CustomUser, Profile
 
 load_dotenv()
 
@@ -18,6 +18,28 @@ def create_challenge(verifier):
     verifier_hash = hashlib.sha256(verifier_bytes).digest()
     verifier_hash_b64 = base64.urlsafe_b64encode(verifier_hash).rstrip(b'=').decode('utf-8')
     return verifier_hash_b64
+
+def create_or_update_user_profile(user: CustomUser, user_info: dict) -> None:
+    profile, _ = Profile.objects.get_or_create(user=user, platform='lichess')
+    profile.title = user_info.get('title')
+    profile.blitz_games = user_info.get('perfs', {}).get('blitz', {}).get('games', 0)
+    profile.blitz_rating = user_info.get('perfs', {}).get('blitz', {}).get('rating', 0)
+    profile.bullet_games = user_info.get('perfs', {}).get('bullet', {}).get('games', 0)
+    profile.bullet_rating = user_info.get('perfs', {}).get('bullet', {}).get('rating', 0)
+    profile.ultra_bullet_games = user_info.get('perfs', {}).get('ultraBullet', {}).get('games', 0)
+    profile.ultra_bullet_rating = user_info.get('perfs', {}).get('ultraBullet', {}).get('rating', 0)
+    profile.rapid_games = user_info.get('perfs', {}).get('rapid', {}).get('games', 0)
+    profile.rapid_rating = user_info.get('perfs', {}).get('rapid', {}).get('rating', 0)
+    profile.puzzles_completed = user_info.get('perfs', {}).get('puzzle', {}).get('games', 0)
+    profile.puzzles_rating = user_info.get('perfs', {}).get('puzzle', {}).get('rating', 0)
+    profile.classical_games = user_info.get('perfs', {}).get('classical', {}).get('games', 0)
+    profile.classical_rating = user_info.get('perfs', {}).get('classical', {}).get('rating', 0)
+    profile.member_since = datetime.fromtimestamp(user_info.get('createdAt') / 1000, tz=timezone.utc)
+    profile.last_seen = datetime.fromtimestamp(user_info.get('seenAt') / 1000, tz=timezone.utc)
+    profile.is_disabled = user_info.get('disabled', False)
+    profile.violated_tos = user_info.get('tosViolation', False)
+    profile.save()
+
 
 def get_lichess_token(auth_code, verifier, callback_url):
     token_url = 'https://lichess.org/api/token'
