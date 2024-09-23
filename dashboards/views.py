@@ -10,6 +10,12 @@ from games.services import fetch_games_from_api_service, fetch_games_from_db_ser
 
 @login_required
 def root(request):
+    """
+    A user's session should persist as long as they are regularly using the app.
+    To achieve this, request.session.modified can be set to True whenever the user
+    accesses the root URL of the app, which should happen every time they launch the app.
+    """
+    request.session.modified = True
     return redirect('dashboards:overview')
 
 @login_required
