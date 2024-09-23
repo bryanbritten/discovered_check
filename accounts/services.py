@@ -36,6 +36,18 @@ def get_lichess_user_email(access_token):
 
 def revoke_token(user: CustomUser) -> None:
     token = AuthToken.objects.get(user=user)
+    access_token = token.access_token
+
+    # revoke it on Lichess's side
+    url = 'https://lichess.org/api/token'
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+    response = requests.delete(url, headers=headers)
+    if response.status_code != 204:
+        raise Exception('Failed to revoke token')
+
+    # revoke it on Discovered Check's side
     token.access_token = None
     token.token_acquired_at = None
     token.token_expires_at = None

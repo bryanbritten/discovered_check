@@ -69,6 +69,7 @@ def Callback(request):
     return redirect('dashboards:overview')
 
 def Logout(request):
+    revoke_token(request.user)
     logout(request)
     return redirect('accounts:login')
 
