@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
+from accounts.models import AuthToken
 from games.services import fetch_games_from_api_service, fetch_games_from_db_service
 
 @login_required
@@ -35,5 +36,6 @@ def openings(request):
 @require_POST
 @login_required
 def fetch_games_from_api(request):
-    fetch_games_from_api_service(username='bbritten')
+    token = request.user.authtoken.access_token
+    fetch_games_from_api_service(username='bbritten', token=token)
     return redirect('dashboards:overview')

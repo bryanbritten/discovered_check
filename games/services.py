@@ -142,8 +142,7 @@ def save_games_to_db(games: list[GameData]) -> None:
         Move.objects.bulk_create(all_moves)
 
 
-def fetch_games_from_api_service(username: str) -> None:
-    token = os.getenv('LICHESS_AUTH_TOKEN')
+def fetch_games_from_api_service(username: str, token: str) -> None:
     url = f'https://lichess.org/api/games/user/{username}'
     headers = {
         'Authorization': f'Bearer {token}',
