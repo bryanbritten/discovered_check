@@ -29,15 +29,21 @@ def overview(request):
 
 @login_required
 def time(request):
-    return HttpResponse(f"The time is {datetime.now().isoformat()}") 
+    cur_time = datetime.now().isoformat()
+    context = {
+        "cur_time": cur_time,
+    }
+    return render(request, 'dashboards/time.html', context)
 
 @login_required
 def tactics(request):
-    return HttpResponse("This page will eventually show analyses of tactics for your games.")
+    context = {}
+    return render(request, 'dashboards/tactics.html', context)
 
 @login_required
 def openings(request):
-    return HttpResponse("This page will eventually show analyses of openings for your games.")
+    context = {}
+    return render(request, 'dashboards/openings.html', context)
 
 @require_POST
 @login_required

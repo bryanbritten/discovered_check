@@ -1,13 +1,9 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Overview</title>
-</head>
-<body>
+{% extends 'dashboards/base.html' %}
+
+{% block content %}
     <p>You have played {{ num_games }} games on Lichess.</p>
     <form action="{% url 'dashboards:fetch_games_from_api' %}" method="post">
         {% csrf_token %}
         <input type="submit" value="Fetch games from Lichess">
     </form>
-</body>
-</html>
+{% endblock %}

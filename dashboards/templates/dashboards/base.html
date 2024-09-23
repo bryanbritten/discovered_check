@@ -1,0 +1,23 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% block title %}
+        <title>Discovered Check</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'dashboards/base.css' %}">
+        {% endblock %}
+    </head>
+    <body>
+        <div id="main-container">
+            <div id="navbar"></div>
+            <div id="content">
+                <div id="sidebar"></div>
+                <div id="canvas">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
