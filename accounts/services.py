@@ -3,6 +3,7 @@ import hashlib
 import os
 import requests
 import secrets
+from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
 from accounts.models import AuthToken, CustomUser
@@ -30,13 +31,22 @@ def get_lichess_token(auth_code, verifier, callback_url):
     response = requests.post(token_url, json=data)
     return response.json()
 
-def get_lichess_user_email(access_token):
-    user_url = 'https://lichess.org/api/account/email'
+def get_lichess_user(access_token):
+    user_url = 'https://lichess.org/api/account'
     headers = {
         'Authorization': f'Bearer {access_token}'
     }
     response = requests.get(user_url, headers=headers)
     return response.json()
+
+def store_token(user: CustomUser, token_response: dict) -> None:
+    token, _ = AuthToken.objects.get_or_create(user=user)
+    token.access_token=token_response.get('access_token')
+    token.token_acquired_at=token_response.get('token_acquired_at', datetime.now(tz=timezone.utc))
+    token.token_expires_at=token_response.get(
+            'token_expires_at', datetime.now(tz=timezone.utc) + timedelta(days=14)
+        )
+    token.save()
 
 def revoke_token(user: CustomUser) -> None:
     token = AuthToken.objects.get(user=user)

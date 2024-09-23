@@ -1,19 +1,19 @@
 import os
 import requests
-from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
 from django.shortcuts import redirect, render
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from accounts.models import AuthToken, CustomUser
+from accounts.models import CustomUser
 
 from accounts.services import (
     create_verifier,
     create_challenge,
     get_lichess_token,
-    get_lichess_user_email,
-    revoke_token
+    get_lichess_user,
+    store_token,
+    revoke_token,
 )
 
 load_dotenv()
@@ -28,7 +28,7 @@ def Login(request):
     params = {
         'client_id': os.getenv('LICHESS_CLIENT_ID'),
         'response_type': 'code',
-        'scope': 'email:read',
+        'scope': 'preference:read',
         'redirect_uri': request.build_absolute_uri('/accounts/callback/'),
         'code_challenge': challenge,
         'code_challenge_method': 'S256',
@@ -53,23 +53,17 @@ def Callback(request):
     if not access_token:
         return redirect(request, 'accounts/error.html', {'error': 'No access token found in response'})
     
-    user_info = get_lichess_user_email(access_token)
-    email = user_info.get('email')
-    if not email:
-        return redirect(request, 'accounts/error.html', {'error': 'No email found in response'})
+    user_info = get_lichess_user(access_token)
+    username = user_info.get('id')
+    if not username:
+        return redirect(request, 'accounts/error.html', {'error': 'No username found in response'})
     
-    user, created = CustomUser.objects.get_or_create(email=email)
+    user, created = CustomUser.objects.get_or_create(username=username)
     if created:
         user.set_unusable_password()
         user.save()
     
-    token, _ = AuthToken.objects.get_or_create(user=user)
-    token.access_token=access_token
-    token.token_acquired_at=token_response.get('token_acquired_at', datetime.now(tz=timezone.utc))
-    token.token_expires_at=token_response.get(
-            'token_expires_at', datetime.now(tz=timezone.utc) + timedelta(days=14)
-        )
-    token.save()
+    store_token(user, token_response)
     login(request, user)
     return redirect('dashboards:overview')
 
