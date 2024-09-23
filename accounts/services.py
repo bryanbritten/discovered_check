@@ -1,9 +1,13 @@
-import secrets
-import hashlib
 import base64
+import hashlib
+import os
 import requests
+import secrets
+from dotenv import load_dotenv
 
 from accounts.models import AuthToken, CustomUser
+
+load_dotenv()
 
 def create_verifier():
     return secrets.token_urlsafe(64)
@@ -19,7 +23,7 @@ def get_lichess_token(auth_code, verifier, callback_url):
     data = {
         'grant_type': 'authorization_code',
         'redirect_uri': callback_url,
-        'client_id': 'discoveredcheck.io',
+        'client_id': os.getenv('LICHESS_CLIENT_ID'),
         'code': auth_code,
         'code_verifier': verifier,
     }

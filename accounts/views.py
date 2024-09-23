@@ -1,5 +1,13 @@
-from datetime import datetime, timedelta, timezone
+import os
 import requests
+from datetime import datetime, timedelta, timezone
+from dotenv import load_dotenv
+
+from django.shortcuts import redirect, render
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from accounts.models import AuthToken, CustomUser
+
 from accounts.services import (
     create_verifier,
     create_challenge,
@@ -7,11 +15,8 @@ from accounts.services import (
     get_lichess_user_email,
     revoke_token
 )
-from django.shortcuts import redirect, render
-from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
-from accounts.models import AuthToken, CustomUser
 
+load_dotenv()
 
 def Login(request):
     if request.method == 'GET':
@@ -21,7 +26,7 @@ def Login(request):
     challenge = create_challenge(verifier)
     request.session['verifier'] = verifier
     params = {
-        'client_id': 'discoveredcheck.io',
+        'client_id': os.getenv('LICHESS_CLIENT_ID'),
         'response_type': 'code',
         'scope': 'email:read',
         'redirect_uri': request.build_absolute_uri('/accounts/callback/'),
