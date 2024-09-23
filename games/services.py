@@ -17,12 +17,12 @@ def _generate_game_object_from_raw_data(game: GameData) -> Game:
     eco = game.get('opening', {}).get('eco')
     opening = Opening.objects.filter(eco=eco).first()
 
-    white_rating_before = game.get('players', {}).get('white', {}).get('rating')
+    white_rating_start = game.get('players', {}).get('white', {}).get('rating')
     white_rating_gained = game.get('players', {}).get('white', {}).get('ratingDiff')
-    white_rating_after = white_rating_before + white_rating_gained
-    black_rating_before = game.get('players', {}).get('black', {}).get('rating')
+    white_rating_end = white_rating_start + white_rating_gained
+    black_rating_start = game.get('players', {}).get('black', {}).get('rating')
     black_rating_gained = game.get('players', {}).get('black', {}).get('ratingDiff')
-    black_rating_after = black_rating_before + black_rating_gained
+    black_rating_end = black_rating_start + black_rating_gained
 
     return Game(
         id=game.get('fullId'),
@@ -33,11 +33,11 @@ def _generate_game_object_from_raw_data(game: GameData) -> Game:
         perf=game.get('perf'),
         status=game.get('status'),
         white_player=game.get('players', {}).get('white', {}).get('user', {}).get('id'),
-        white_rating_before=white_rating_before,
-        white_rating_after=white_rating_after,
+        white_rating_start=white_rating_start,
+        white_rating_end=white_rating_end,
         black_player=game.get('players', {}).get('black', {}).get('user', {}).get('id'),
-        black_rating_before=black_rating_before,
-        black_rating_after=black_rating_after,
+        black_rating_start=black_rating_start,
+        black_rating_end=black_rating_end,
         winner=game.get('winner'),
         opening=opening,
         created_at=datetime.fromtimestamp(game.get('createdAt') / 1000, tz=timezone.utc),
