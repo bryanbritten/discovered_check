@@ -10,7 +10,7 @@ from accounts.models import CustomUser
 from accounts.services import (
     create_challenge,
     create_verifier,
-    create_or_update_user_profile,
+    create_or_update_player,
     get_lichess_token,
     get_lichess_user,
     store_token,
@@ -65,7 +65,7 @@ def Callback(request):
         user.save()
     
     store_token(user, token_response)
-    create_or_update_user_profile(user, user_info)
+    create_or_update_player(user, user_info)
     login(request, user)
     return redirect('dashboards:overview')
 

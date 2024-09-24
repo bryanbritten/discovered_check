@@ -58,29 +58,3 @@ class AuthToken(models.Model):
     
     def __str__(self):
         return f'{self.user.email}\'s token'
-
-
-class Profile(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    platform = models.CharField(max_length=10, choices=[('lichess', 'Lichess'), ('chesscom', 'Chess.com')])
-    title = models.CharField(max_length=255, blank=True, null=True) # todo: make this a choice field
-    blitz_games = models.IntegerField(default=0)
-    blitz_rating = models.SmallIntegerField(default=0)
-    bullet_games = models.IntegerField(default=0)
-    bullet_rating = models.SmallIntegerField(default=0)
-    ultra_bullet_games = models.IntegerField(default=0)
-    ultra_bullet_rating = models.SmallIntegerField(default=0)
-    rapid_games = models.IntegerField(default=0)
-    rapid_rating = models.SmallIntegerField(default=0)
-    puzzles_completed = models.IntegerField(default=0)
-    puzzles_rating = models.SmallIntegerField(default=0)
-    classical_games = models.IntegerField(default=0)
-    classical_rating = models.SmallIntegerField(default=0)
-    member_since = models.DateTimeField(blank=True, null=True)
-    last_seen = models.DateTimeField(blank=True, null=True)
-    is_disabled = models.BooleanField(default=False)
-    violated_tos = models.BooleanField(default=False)
-    last_updated = models.DateTimeField(auto_now=True)
-
-
-

@@ -52,3 +52,10 @@ def fetch_games_from_api(request):
     token = request.user.authtoken.access_token
     fetch_games_from_api_service(username='bbritten', token=token)
     return redirect('dashboards:overview')
+
+@login_required
+def profile(request):
+    context = {
+        "user": request.user,
+    }
+    return render(request, 'dashboards/profile.html', context)
