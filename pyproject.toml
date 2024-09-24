@@ -12,6 +12,7 @@ django = "^5.1.1"
 psycopg2 = "^2.9.9"
 python-dotenv = "^1.0.1"
 requests = "^2.32.3"
+fontawesomefree = "^6.6.0"
 
 
 [build-system]
