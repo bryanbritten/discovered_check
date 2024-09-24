@@ -22,7 +22,7 @@ def root(request):
 def overview(request):
     games = fetch_games_from_db_service(username='bbritten')
     context = {
-        "username": request.user.username,
+        "user": request.user,
         "games": games,
         "num_games": len(games),
     }
@@ -32,26 +32,24 @@ def overview(request):
 def time(request):
     cur_time = datetime.now().isoformat()
     context = {
+        "user": request.user,
         "cur_time": cur_time,
     }
     return render(request, 'dashboards/time.html', context)
 
 @login_required
 def tactics(request):
-    context = {}
+    context = {
+        "user": request.user,
+    }
     return render(request, 'dashboards/tactics.html', context)
 
 @login_required
 def openings(request):
-    context = {}
+    context = {
+        "user": request.user,
+    }
     return render(request, 'dashboards/openings.html', context)
-
-@require_POST
-@login_required
-def fetch_games_from_api(request):
-    token = request.user.authtoken.access_token
-    fetch_games_from_api_service(username='bbritten', token=token)
-    return redirect('dashboards:overview')
 
 @login_required
 def profile(request):
@@ -59,3 +57,10 @@ def profile(request):
         "user": request.user,
     }
     return render(request, 'dashboards/profile.html', context)
+
+@require_POST
+@login_required
+def fetch_games_from_api(request):
+    token = request.user.authtoken.access_token
+    fetch_games_from_api_service(username='bbritten', token=token)
+    return redirect('dashboards:overview')
