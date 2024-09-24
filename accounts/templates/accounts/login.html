@@ -1,13 +1,29 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>Discovered Check - Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'accounts/base.css' %}">
 </head>
 <body>
-    <h1>Login</h1>
-    <form action="{%  url 'accounts:login' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Login</button>
-    </form>
+    <div id="main-container">
+        <div id="login-form">
+            <div id="login-banner">
+            </div>
+            <div id="login-text">
+                <h1>Gain mastery over your games through human-centered analysis!</p>
+            </div>
+            <div id="login-button-container">
+                <form action="{%  url 'accounts:login' %}" method="post">
+                    {% csrf_token %}
+                    <button id="login-button" type="submit">Login with Lichess</button>
+                </form>
+            </div>
+            <div id="disclaimer">
+                <p>Discovered Check is not an official product of Lichess or endorsed in any way.</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
