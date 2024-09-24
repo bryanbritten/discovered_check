@@ -69,13 +69,11 @@ def Callback(request):
     login(request, user)
     return redirect('dashboards:overview')
 
+@login_required
 def Logout(request):
     revoke_token(request.user)
     logout(request)
     return redirect('accounts:login')
-
-def Signup(request):
-    return render(request, 'accounts/signup.html')
 
 @login_required
 def Profile(request):
