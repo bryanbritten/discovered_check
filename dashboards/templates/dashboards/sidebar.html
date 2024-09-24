@@ -1,34 +1,42 @@
 <div id="sidebar-container">
-    <div class="sidebar-card">
-        <div class="sidebar-card-container">
-            <div class="sidebar-card-icon"></div>
-            <div class="sidebar-card-label">
-                <p>Overview</p>
+    <a href="{% url 'dashboards:overview' %}">
+        <div class="sidebar-card">
+            <div class="sidebar-card-container">
+                <div class="sidebar-card-icon"></div>
+                <div class="sidebar-card-label">
+                    <p>Overview</p>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="sidebar-card">
-        <div class="sidebar-card-container">
-            <div class="sidebar-card-icon"></div>
-            <div class="sidebar-card-label">
-                <p>Openings</p>
+    </a>
+    <a href="{% url 'dashboards:openings' %}">
+        <div class="sidebar-card">
+            <div class="sidebar-card-container">
+                <div class="sidebar-card-icon"></div>
+                <div class="sidebar-card-label">
+                    <p>Openings</p>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="sidebar-card">
-        <div class="sidebar-card-container">
-            <div class="sidebar-card-icon"></div>
-            <div class="sidebar-card-label">
-                <p>Tactics</p>
+    </a>
+    <a href="{% url 'dashboards:tactics' %}">
+        <div class="sidebar-card">
+            <div class="sidebar-card-container">
+                <div class="sidebar-card-icon"></div>
+                <div class="sidebar-card-label">
+                    <p>Tactics</p>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="sidebar-card">
-        <div class="sidebar-card-container">
-            <div class="sidebar-card-icon"></div>
-            <div class="sidebar-card-label">
-                <p>Timing</p>
+    </a>
+    <a href="{% url 'dashboards:time' %}">
+        <div class="sidebar-card">
+            <div class="sidebar-card-container">
+                <div class="sidebar-card-icon"></div>
+                <div class="sidebar-card-label">
+                    <p>Time</p>
+                </div>
             </div>
         </div>
-    </div>
+    </a>
 </div>
