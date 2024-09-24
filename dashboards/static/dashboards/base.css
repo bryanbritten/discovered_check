@@ -17,13 +17,12 @@ body {
     flex-shrink: 0;
     height: 3vh;
     width: 100vw;
-    overflow: hidden;
-    background-color: white;
+    position: relative;
 }
 
 #navbar-container {
     display: flex;
-    flex-flow: row nowrap;
+    flex-flow: row-reverse nowrap;
     height: 100%;
     width: 100%;
 }
@@ -38,12 +37,54 @@ body {
     border-right: 1px solid #212529;
 }
 
-#menu {
+.spacer {
     flex-grow: 1;
+    flex-shrink: 1;
+}
+
+#user-menu {
+    flex-grow: 0;
     flex-shrink: 0;
     height: 100%;
-    text-align: right;
-    align-items: right;
+    padding-right: 15px;
+}
+
+#user-menu-container {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+#username-icon {
+    flex-grow: 1;
+    flex-shrink: 1;
+    height: 100%;
+    padding-left: 5px;
+}
+
+#username {
+    flex-grow: 0;
+    flex-shrink: 0;
+    height: 100%;
+    color: #212529;
+    font-weight: bolder;
+}
+
+#menu {
+    position: absolute;
+    top: 100%;
+    right: 0%;
+    background-color: aliceblue;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-right: 10px;
+    width: 100px;
+}
+
+.hidden {
+    display: none;
 }
 
 #content {
@@ -103,5 +144,5 @@ body {
     flex-shrink: 0;
     height: 97vh;
     overflow: hidden;
-    background-color: beige;
+    background-color: white;
 }
