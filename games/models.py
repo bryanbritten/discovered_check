@@ -80,9 +80,9 @@ class Move(models.Model):
     move_number = models.SmallIntegerField()
     move = models.CharField(max_length=10)
     color = models.CharField(max_length=5, choices=COLORS)
-    clock_start = models.SmallIntegerField(blank=True, null=True)
-    clock_end = models.SmallIntegerField(blank=True, null=True)
-    time_spent = models.SmallIntegerField(blank=True, null=True)
+    clock_start = models.FloatField(blank=True, null=True)
+    clock_end = models.FloatField(blank=True, null=True)
+    time_spent = models.FloatField(blank=True, null=True)
 
 class Player(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
