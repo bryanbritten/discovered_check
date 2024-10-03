@@ -1,19 +1,18 @@
 import json
-import os
 import requests
 from datetime import datetime, timezone
-from typing import Dict, List, Tuple, TypeAlias, Union
+from typing import TypeAlias, Union
 
 from django.db import transaction
 from games.models import Game, Move, Opening
 
 BaseTypes: TypeAlias = Union[str, int, bool, float]
-PlayerData: TypeAlias = Dict[str, Union[BaseTypes, Dict[str, str]]]
-ClockData: TypeAlias = Dict[str, int]
-GameData: TypeAlias = Dict[str, Union[BaseTypes, List[int], PlayerData, ClockData]]
+PlayerData: TypeAlias = dict[str, Union[BaseTypes, dict[str, str]]]
+ClockData: TypeAlias = dict[str, int]
+GameData: TypeAlias = dict[str, Union[BaseTypes, list[int], PlayerData, ClockData]]
 
-
-def _generate_game_object_from_raw_data(game: GameData) -> Game:
+def __generate_game_object_from_raw_json_data(game: GameData) -> Game:
+    """Returns a single Game object generated from raw JSON data"""
     eco = game.get('opening', {}).get('eco')
     opening = Opening.objects.filter(eco=eco).first()
 
@@ -47,8 +46,9 @@ def _generate_game_object_from_raw_data(game: GameData) -> Game:
         total_time=game.get('clock', {}).get('totalTime'),
     )
 
-
-def _generate_clock_start_stop_times(clocks: List[int]) -> List[Tuple[int, int, int]]:
+def __generate_clock_start_stop_times(clocks: list[int]) -> list[tuple[int, int, int]]:
+    """Calculates the clock time when the move started and when the move ended,
+    as well as the time spent making the move"""
     if not clocks:
         return None
 
@@ -58,9 +58,10 @@ def _generate_clock_start_stop_times(clocks: List[int]) -> List[Tuple[int, int, 
     # Lichess also gives each player some amount of free time to make their first move
     # This means each player's clock on the second move is actually the initial clock
     white_clocks = clocks[::2]
+    print(white_clocks)
     white_first_move_start_stop = [(white_clocks[0], white_clocks[0], 0)]
     white_subsequent_moves_start_stop = [
-        (white_clocks[i-1], white_clocks[i], 0)
+        (white_clocks[i-1], white_clocks[i], round(white_clocks[i-1] - white_clocks[i], 2))
         for i in range(1, len(white_clocks))
     ]
     white_start_stop_times = white_first_move_start_stop + white_subsequent_moves_start_stop
@@ -69,7 +70,7 @@ def _generate_clock_start_stop_times(clocks: List[int]) -> List[Tuple[int, int, 
     black_clocks = clocks[1::2]
     black_first_move_start_stop = [(black_clocks[0], black_clocks[0], 0)]
     black_subsequent_moves_start_stop = [
-        (black_clocks[i-1], black_clocks[i], 0)
+        (black_clocks[i-1], black_clocks[i], round(black_clocks[i-1] - black_clocks[i], 2))
         for i in range(1, len(black_clocks))
     ]
     black_start_stop_times = black_first_move_start_stop + black_subsequent_moves_start_stop
@@ -79,11 +80,12 @@ def _generate_clock_start_stop_times(clocks: List[int]) -> List[Tuple[int, int, 
         "black_start_stop_times": black_start_stop_times,
     }
 
-
-def _generate_move_objects_from_raw_data(game: Game, moves: str, clocks: List[int]) -> List[Move]:
+def __generate_move_objects_from_raw_data(game: Game, moves: str, clocks: list[int]) -> list[Move]:
+    """Returns a list of Move objects generated from a string containing every move and
+    a list of integers representing the clock timestamps for each move"""
     all_moves = []
     move_list = moves.split()
-    start_stop_times = _generate_clock_start_stop_times(clocks)
+    start_stop_times = __generate_clock_start_stop_times(clocks)
     
     white_moves = move_list[::2]
     white_start_stop_times = start_stop_times.get('white_start_stop_times')
@@ -122,25 +124,22 @@ def _generate_move_objects_from_raw_data(game: Game, moves: str, clocks: List[in
             time_spent = time_spent
         )
         all_moves.append(move_obj)
-    
     return all_moves
-
 
 def save_games_to_db(games: list[GameData]) -> None:
     all_games = []
     all_moves = []
 
     for game in games:
-        cur_game = _generate_game_object_from_raw_data(game)
+        cur_game = __generate_game_object_from_raw_json_data(game)
         all_games.append(cur_game)
     
-        moves = _generate_move_objects_from_raw_data(cur_game, game.get('moves'), game.get('clocks', []))
+        moves = __generate_move_objects_from_raw_data(cur_game, game.get('moves'), game.get('clocks', []))
         all_moves.extend(moves)
     
     with transaction.atomic():
         Game.objects.bulk_create(all_games)
         Move.objects.bulk_create(all_moves)
-
 
 def fetch_games_from_api_service(username: str, token: str) -> None:
     url = f'https://lichess.org/api/games/user/{username}'
@@ -160,13 +159,8 @@ def fetch_games_from_api_service(username: str, token: str) -> None:
     content = response.text
     raw_game_data = content.strip().splitlines()
     games = [json.loads(game) for game in raw_game_data]
-
     save_games_to_db(games)
-
 
 def fetch_games_from_db_service(username: str) -> list[GameData]:
     games = Game.objects.filter(white_player=username) | Game.objects.filter(black_player=username)
     return games
-
-
-    
