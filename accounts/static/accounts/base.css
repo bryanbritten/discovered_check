@@ -13,7 +13,6 @@ body {
     /* background-color: aliceblue; */
 }
 
-/* centers the login form at the center of the screen with a width of 50vw and height of 50vh */
 #login-form {
     display:flex;
     flex-flow: column nowrap;
@@ -26,6 +25,8 @@ body {
     border: none;
     box-shadow: 2px 18px 70px 0px #717171;
     background-color: aliceblue;
+    border-radius: 5%;
+    overflow:hidden;
 }
 
 #login-banner {
