@@ -1,2 +1,53 @@
 <div id="filter-container">
+    <div class="parameter-row">
+        <div class="parameter">
+            <div class="parameter-label">Date Range</div>
+            <div class="parameter-content">
+                <input type="date" id="start-date-parameter" name="start-date">
+                <p>to</p>
+                <input type="date" id="end-date-parameter" name="end-date">
+            </div>
+        </div>
+        <div class="parameter">
+            <div class="parameter-label">Color</div>
+            <div class="parameter-content">
+                <select id="color-parameter" name="color">
+                    <option value="all">All</option>
+                    <option value="white">White</option>
+                    <option value="black">Black</option>
+                </select>
+            </div>
+        </div>
+        <div class="parameter">
+            <div class="parameter-label">Time Class</div>
+            <div class="parameter-content">
+                <select id="time-class-parameter" name="time-class">
+                    <option value="all">All</option>
+                    <option value="bullet">Bullet</option>
+                    <option value="blitz">Blitz</option>
+                    <option value="rapid">Rapid</option>
+                    <option value="daily">Daily</option>
+                </select>
+            </div>
+        </div>
+        <div class="parameter">
+            <div class="parameter-label">Opponent ELO</div>
+            <div class="parameter-content">
+                <input min="0" max="3500">
+                <p>to</p>
+                <input min="0" max="3500">
+            </div>
+        </div>
+        <div class="parameter">
+            <div class="parameter-label">Outcome</div>
+            <div class="parameter-content">
+                <select id="outcome-parameter" name="outcome">
+                    <option value="all">All</option>
+                    <option value="win">Win</option>
+                    <option value="lose">Lose</option>
+                </select>
+            </div>
+        </div>
+        <div class="spacer"></div>
+    </div>
 </div>
