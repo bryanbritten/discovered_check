@@ -13,14 +13,17 @@
     </head>
     <body>
         <div id="main-container">
-            <div id="navbar">
-                {% include 'dashboards/navbar.html' %}
-            </div>
             <div id="content">
                 <div id="sidebar">
                     {% include 'dashboards/sidebar.html' %}
                 </div>
                 <div id="canvas">
+                    <div id="navbar">
+                        {% include 'dashboards/navbar.html' %}
+                    </div>
+                    <div id="filters">
+                        {% include 'dashboards/filters.html' %}
+                    </div>
                     {% block content %}
                     {% endblock %}
                 </div>
