@@ -1,15 +1,28 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { initiateOAuth } from "../../services/auth";
+import { initiateOAuth, resumeSession, storeTokens } from "../../services/auth";
 
 export default function LoginPage() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
+  // Redirect if already authenticated (e.g. AuthContext rehydrated on fresh load)
   useEffect(() => {
     if (user) navigate("/dashboard", { replace: true });
   }, [user, navigate]);
+
+  // After a soft logout the session cookie is still valid. Try to resume it
+  // silently so the user never has to touch the Lichess OAuth flow again.
+  useEffect(() => {
+    if (user) return;
+    resumeSession().then((result) => {
+      if (result) {
+        storeTokens(result.tokens);
+        setUser(result.user);
+      }
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-chess-dark px-4">

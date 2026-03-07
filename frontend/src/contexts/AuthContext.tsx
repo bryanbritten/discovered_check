@@ -3,7 +3,6 @@ import type { User } from "../types";
 import {
   clearTokens,
   resumeSession,
-  serverLogout,
   storeTokens,
 } from "../services/auth";
 
@@ -35,7 +34,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = async () => {
-    await serverLogout(); // invalidates the dc_session cookie server-side
+    // Soft logout: clear in-memory tokens and UI state but leave the
+    // dc_session cookie intact. The next visit to /login will resume the
+    // session silently without requiring Lichess re-authorization.
     clearTokens();
     setUser(null);
   };
