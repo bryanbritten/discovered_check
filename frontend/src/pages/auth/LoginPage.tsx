@@ -7,22 +7,21 @@ export default function LoginPage() {
   const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already authenticated (e.g. AuthContext rehydrated on fresh load)
   useEffect(() => {
     if (user) navigate("/dashboard", { replace: true });
   }, [user, navigate]);
 
-  // After a soft logout the session cookie is still valid. Try to resume it
-  // silently so the user never has to touch the Lichess OAuth flow again.
-  useEffect(() => {
-    if (user) return;
-    resumeSession().then((result) => {
-      if (result) {
-        storeTokens(result.tokens);
-        setUser(result.user);
-      }
-    });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // Try the session cookie first. If it's still valid the user gets back in
+  // without going through Lichess OAuth; if not, kick off the full flow.
+  const handleLogin = async () => {
+    const result = await resumeSession();
+    if (result) {
+      storeTokens(result.tokens);
+      setUser(result.user);
+    } else {
+      await initiateOAuth();
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-chess-dark px-4">
@@ -69,7 +68,7 @@ export default function LoginPage() {
 
         {/* Login button */}
         <button
-          onClick={initiateOAuth}
+          onClick={handleLogin}
           className="group relative w-full overflow-hidden rounded-xl bg-chess-accent px-6 py-4 font-semibold text-chess-dark shadow-lg transition-all hover:bg-chess-accent-dark focus:outline-none focus:ring-2 focus:ring-chess-accent focus:ring-offset-2 focus:ring-offset-chess-dark"
         >
           <span className="flex items-center justify-center gap-3">
