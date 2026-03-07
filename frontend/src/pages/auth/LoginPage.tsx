@@ -1,15 +1,27 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { initiateOAuth } from "../../services/auth";
+import { initiateOAuth, resumeSession, storeTokens } from "../../services/auth";
 
 export default function LoginPage() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) navigate("/dashboard", { replace: true });
   }, [user, navigate]);
+
+  // Try the session cookie first. If it's still valid the user gets back in
+  // without going through Lichess OAuth; if not, kick off the full flow.
+  const handleLogin = async () => {
+    const result = await resumeSession();
+    if (result) {
+      storeTokens(result.tokens);
+      setUser(result.user);
+    } else {
+      await initiateOAuth();
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-chess-dark px-4">
@@ -56,7 +68,7 @@ export default function LoginPage() {
 
         {/* Login button */}
         <button
-          onClick={initiateOAuth}
+          onClick={handleLogin}
           className="group relative w-full overflow-hidden rounded-xl bg-chess-accent px-6 py-4 font-semibold text-chess-dark shadow-lg transition-all hover:bg-chess-accent-dark focus:outline-none focus:ring-2 focus:ring-chess-accent focus:ring-offset-2 focus:ring-offset-chess-dark"
         >
           <span className="flex items-center justify-center gap-3">

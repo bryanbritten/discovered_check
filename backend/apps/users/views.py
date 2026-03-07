@@ -1,16 +1,42 @@
 import requests
 from django.conf import settings
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import LichessToken, User
+from .models import LichessToken, User, UserSession
 from .serializers import UserSerializer
 
 LICHESS_TOKEN_URL = "https://lichess.org/api/token"
 LICHESS_ACCOUNT_URL = "https://lichess.org/api/account"
+
+
+def _issue_jwt_response(user: User, set_session_cookie: bool = False) -> Response:
+    """Build a Response containing fresh JWT tokens (and optionally a session cookie)."""
+    refresh = RefreshToken.for_user(user)
+    response = Response(
+        {
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "user": UserSerializer(user).data,
+        }
+    )
+
+    if set_session_cookie:
+        session = UserSession.create_for_user(user)
+        response.set_cookie(
+            settings.PERSISTENT_SESSION_COOKIE_NAME,
+            session.token,
+            max_age=int(UserSession.LIFETIME.total_seconds()),
+            httponly=True,
+            secure=not settings.DEBUG,
+            samesite="Lax",
+        )
+
+    return response
 
 
 @api_view(["POST"])
@@ -18,6 +44,7 @@ LICHESS_ACCOUNT_URL = "https://lichess.org/api/account"
 def lichess_oauth_exchange(request):
     """
     Exchange a Lichess OAuth authorization code (with PKCE code_verifier) for JWT tokens.
+    Also creates a persistent session cookie so subsequent logins skip OAuth entirely.
 
     Expected body:
         code: str
@@ -34,7 +61,6 @@ def lichess_oauth_exchange(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    # Exchange authorization code for access token
     token_resp = requests.post(
         LICHESS_TOKEN_URL,
         data={
@@ -62,7 +88,6 @@ def lichess_oauth_exchange(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    # Fetch user profile from Lichess
     account_resp = requests.get(
         LICHESS_ACCOUNT_URL,
         headers={"Authorization": f"Bearer {access_token}"},
@@ -79,7 +104,6 @@ def lichess_oauth_exchange(request):
     lichess_id = lichess_user["id"]
     lichess_username = lichess_user["username"]
 
-    # Create or update the local user
     user, _ = User.objects.get_or_create(
         lichess_id=lichess_id,
         defaults={
@@ -92,7 +116,6 @@ def lichess_oauth_exchange(request):
         user.lichess_username = lichess_username
         user.save(update_fields=["lichess_username"])
 
-    # Persist Lichess token
     LichessToken.objects.update_or_create(
         user=user,
         defaults={
@@ -102,25 +125,61 @@ def lichess_oauth_exchange(request):
         },
     )
 
-    # Issue JWT tokens
-    refresh = RefreshToken.for_user(user)
-    return Response(
-        {
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-            "user": UserSerializer(user).data,
-        }
-    )
+    return _issue_jwt_response(user, set_session_cookie=True)
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def token_refresh(request):
-    """Thin wrapper — clients can also hit /api/auth/token/refresh/ directly."""
-    from rest_framework_simplejwt.views import TokenRefreshView
+def session_resume(request):
+    """
+    Issue fresh JWTs using the persistent session cookie, without requiring the
+    user to re-authorize with Lichess.
 
-    view = TokenRefreshView.as_view()
-    return view(request._request)
+    Returns 401 if the cookie is absent, invalid, or expired.
+    """
+    token = request.COOKIES.get(settings.PERSISTENT_SESSION_COOKIE_NAME)
+    if not token:
+        return Response({"error": "No session cookie."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    try:
+        session = UserSession.objects.select_related("user__lichess_token").get(token=token)
+    except UserSession.DoesNotExist:
+        return Response({"error": "Invalid session."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if not session.is_valid():
+        session.delete()
+        return Response({"error": "Session expired."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    # Respect Lichess token expiry if it was populated
+    try:
+        lt = session.user.lichess_token
+        if lt.expires_at and timezone.now() > lt.expires_at:
+            session.delete()
+            return Response(
+                {"error": "Lichess token expired. Please re-authorize."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+    except LichessToken.DoesNotExist:
+        return Response({"error": "No Lichess token on record."}, status=status.HTTP_401_UNAUTHORIZED)
+
+    session.touch()
+    return _issue_jwt_response(session.user)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def logout(request):
+    """
+    Invalidate the persistent session cookie (full logout).
+    The frontend is responsible for clearing JWTs from localStorage.
+    """
+    token = request.COOKIES.get(settings.PERSISTENT_SESSION_COOKIE_NAME)
+    if token:
+        UserSession.objects.filter(token=token).delete()
+
+    response = Response({"detail": "Logged out."})
+    response.delete_cookie(settings.PERSISTENT_SESSION_COOKIE_NAME)
+    return response
 
 
 @api_view(["GET"])

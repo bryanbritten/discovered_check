@@ -1,8 +1,11 @@
 import api from "./api";
+import { setTokens } from "./tokenStore";
 import type { AuthTokens, User } from "../types";
 
+export { clearTokens } from "./tokenStore";
+
 const LICHESS_CLIENT_ID =
-  (import.meta.env.VITE_LICHESS_CLIENT_ID as string | undefined);
+  (import.meta.env.VITE_LICHESS_CLIENT_ID as string | undefined) ?? "";
 const OAUTH_REDIRECT_URI =
   (import.meta.env.VITE_OAUTH_REDIRECT_URI as string | undefined) ??
   `${window.location.origin}/auth/callback`;
@@ -78,17 +81,24 @@ export async function exchangeOAuthCode(
 }
 
 export function storeTokens(tokens: AuthTokens): void {
-  localStorage.setItem("access_token", tokens.access);
-  localStorage.setItem("refresh_token", tokens.refresh);
+  setTokens(tokens.access, tokens.refresh);
 }
 
-export function clearTokens(): void {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
+export async function resumeSession(): Promise<{ tokens: AuthTokens; user: User } | null> {
+  try {
+    const { data } = await api.post<AuthTokens & { user: User }>("/auth/session/resume/");
+    return { tokens: { access: data.access, refresh: data.refresh }, user: data.user };
+  } catch {
+    return null;
+  }
 }
 
-export function isAuthenticated(): boolean {
-  return !!localStorage.getItem("access_token");
+export async function serverLogout(): Promise<void> {
+  try {
+    await api.post("/auth/logout/");
+  } catch {
+    // Best-effort — clear client state regardless
+  }
 }
 
 export async function fetchCurrentUser(): Promise<User> {

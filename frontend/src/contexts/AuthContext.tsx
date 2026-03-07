@@ -1,12 +1,16 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { User } from "../types";
-import { clearTokens, fetchCurrentUser, isAuthenticated } from "../services/auth";
+import {
+  clearTokens,
+  resumeSession,
+  storeTokens,
+} from "../services/auth";
 
 interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   setUser: (user: User | null) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -16,20 +20,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      setIsLoading(false);
-      return;
-    }
-
-    fetchCurrentUser()
-      .then(setUser)
-      .catch(() => {
-        clearTokens();
+    // Tokens are in-memory only, so every page load starts fresh.
+    // Attempt to rehydrate the session from the persistent httpOnly cookie.
+    // If the cookie is absent or expired, the user is sent to the login page.
+    resumeSession()
+      .then((result) => {
+        if (result) {
+          storeTokens(result.tokens);
+          setUser(result.user);
+        }
       })
       .finally(() => setIsLoading(false));
   }, []);
 
-  const logout = () => {
+  const logout = async () => {
+    // Soft logout: clear in-memory tokens and UI state but leave the
+    // dc_session cookie intact. The next visit to /login will resume the
+    // session silently without requiring Lichess re-authorization.
     clearTokens();
     setUser(null);
   };
