@@ -1,12 +1,19 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { User } from "../types";
-import { clearTokens, fetchCurrentUser, isAuthenticated } from "../services/auth";
+import {
+  clearTokens,
+  fetchCurrentUser,
+  isAuthenticated,
+  resumeSession,
+  serverLogout,
+  storeTokens,
+} from "../services/auth";
 
 interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   setUser: (user: User | null) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -16,20 +23,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      setIsLoading(false);
-      return;
-    }
+    const init = async () => {
+      // 1. If we have a JWT, try to use it directly.
+      if (isAuthenticated()) {
+        try {
+          setUser(await fetchCurrentUser());
+          return;
+        } catch {
+          clearTokens();
+          // Fall through to session resume.
+        }
+      }
 
-    fetchCurrentUser()
-      .then(setUser)
-      .catch(() => {
-        clearTokens();
-      })
-      .finally(() => setIsLoading(false));
+      // 2. No valid JWT — try the persistent session cookie. If the user has
+      //    logged in before and their Lichess token is still valid, this will
+      //    succeed and they won't need to go through OAuth again.
+      const result = await resumeSession();
+      if (result) {
+        storeTokens(result.tokens);
+        setUser(result.user);
+      }
+    };
+
+    init().finally(() => setIsLoading(false));
   }, []);
 
-  const logout = () => {
+  const logout = async () => {
+    // Invalidate the session cookie on the server so the user must go through
+    // OAuth again on their next visit.
+    await serverLogout();
     clearTokens();
     setUser(null);
   };

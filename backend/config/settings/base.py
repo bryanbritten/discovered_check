@@ -115,3 +115,6 @@ SIMPLE_JWT = {
 LICHESS_CLIENT_ID = env("LICHESS_CLIENT_ID", default="discoveredcheck")
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:5173")
 OAUTH_REDIRECT_URI = env("OAUTH_REDIRECT_URI", default="http://localhost:5173/auth/callback")
+
+# Persistent session cookie (separate from Django's session framework)
+PERSISTENT_SESSION_COOKIE_NAME = "dc_session"
