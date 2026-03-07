@@ -16,13 +16,19 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Auth endpoints are allowed to return 401 naturally — the interceptor must not
+// attempt recovery for them or it causes infinite loops (e.g. session/resume/
+// returning 401 → interceptor calls session/resume/ again → repeat).
+const AUTH_ENDPOINTS = ["/auth/session/resume/", "/auth/token/refresh/", "/auth/lichess/"];
+
 // On 401: try JWT refresh → session resume → redirect to login
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const original = error.config;
+    const isAuthEndpoint = AUTH_ENDPOINTS.some((ep) => original.url?.includes(ep));
 
-    if (error.response?.status === 401 && !original._retry) {
+    if (error.response?.status === 401 && !original._retry && !isAuthEndpoint) {
       original._retry = true;
 
       // 1. Try JWT refresh token
