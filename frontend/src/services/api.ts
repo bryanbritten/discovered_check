@@ -1,4 +1,5 @@
 import axios from "axios";
+import { clearTokens, getAccessToken, getRefreshToken, setTokens } from "./tokenStore";
 
 const api = axios.create({
   baseURL: "/api",
@@ -8,7 +9,7 @@ const api = axios.create({
 
 // Attach access token to every request
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
+  const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -25,16 +26,15 @@ api.interceptors.response.use(
       original._retry = true;
 
       // 1. Try JWT refresh token
-      const refresh = localStorage.getItem("refresh_token");
+      const refresh = getRefreshToken();
       if (refresh) {
         try {
           const { data } = await axios.post("/api/auth/token/refresh/", { refresh });
-          localStorage.setItem("access_token", data.access);
+          setTokens(data.access, data.refresh ?? refresh);
           original.headers.Authorization = `Bearer ${data.access}`;
           return api(original);
         } catch {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
+          clearTokens();
         }
       }
 
@@ -45,8 +45,7 @@ api.interceptors.response.use(
           {},
           { withCredentials: true }
         );
-        localStorage.setItem("access_token", data.access);
-        localStorage.setItem("refresh_token", data.refresh);
+        setTokens(data.access, data.refresh);
         original.headers.Authorization = `Bearer ${data.access}`;
         return api(original);
       } catch {

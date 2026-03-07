@@ -2,8 +2,6 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import type { User } from "../types";
 import {
   clearTokens,
-  fetchCurrentUser,
-  isAuthenticated,
   resumeSession,
   serverLogout,
   storeTokens,
@@ -23,35 +21,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const init = async () => {
-      // 1. If we have a JWT, try to use it directly.
-      if (isAuthenticated()) {
-        try {
-          setUser(await fetchCurrentUser());
-          return;
-        } catch {
-          clearTokens();
-          // Fall through to session resume.
+    // Tokens are in-memory only, so every page load starts fresh.
+    // Attempt to rehydrate the session from the persistent httpOnly cookie.
+    // If the cookie is absent or expired, the user is sent to the login page.
+    resumeSession()
+      .then((result) => {
+        if (result) {
+          storeTokens(result.tokens);
+          setUser(result.user);
         }
-      }
-
-      // 2. No valid JWT — try the persistent session cookie. If the user has
-      //    logged in before and their Lichess token is still valid, this will
-      //    succeed and they won't need to go through OAuth again.
-      const result = await resumeSession();
-      if (result) {
-        storeTokens(result.tokens);
-        setUser(result.user);
-      }
-    };
-
-    init().finally(() => setIsLoading(false));
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const logout = async () => {
-    // Invalidate the session cookie on the server so the user must go through
-    // OAuth again on their next visit.
-    await serverLogout();
+    await serverLogout(); // invalidates the dc_session cookie server-side
     clearTokens();
     setUser(null);
   };

@@ -1,5 +1,8 @@
 import api from "./api";
+import { setTokens } from "./tokenStore";
 import type { AuthTokens, User } from "../types";
+
+export { clearTokens } from "./tokenStore";
 
 const LICHESS_CLIENT_ID =
   (import.meta.env.VITE_LICHESS_CLIENT_ID as string | undefined) ?? "";
@@ -78,17 +81,7 @@ export async function exchangeOAuthCode(
 }
 
 export function storeTokens(tokens: AuthTokens): void {
-  localStorage.setItem("access_token", tokens.access);
-  localStorage.setItem("refresh_token", tokens.refresh);
-}
-
-export function clearTokens(): void {
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
-}
-
-export function isAuthenticated(): boolean {
-  return !!localStorage.getItem("access_token");
+  setTokens(tokens.access, tokens.refresh);
 }
 
 export async function resumeSession(): Promise<{ tokens: AuthTokens; user: User } | null> {
