@@ -71,6 +71,24 @@ def lichess_oauth_exchange(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    if not (43 <= len(code_verifier) <= 128):
+        return Response(
+            {"error": "code_verifier must be between 43 and 128 characters."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if len(code) > 512:
+        return Response(
+            {"error": "Invalid authorization code."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if len(redirect_uri) > 2048:
+        return Response(
+            {"error": "Invalid redirect_uri."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     token_resp = requests.post(
         LICHESS_TOKEN_URL,
         data={
@@ -90,7 +108,7 @@ def lichess_oauth_exchange(request):
             token_resp.text,
         )
         return Response(
-            {"error": "Failed to exchange token with Lichess."},
+            {"error": "Failed to exchange token with Lichess.", "detail": token_resp.text},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
