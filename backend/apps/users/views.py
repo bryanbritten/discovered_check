@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 
 import requests
 from django.conf import settings
@@ -90,7 +91,7 @@ def lichess_oauth_exchange(request):
             token_resp.text,
         )
         return Response(
-            {"error": "Failed to exchange token with Lichess."},
+            {"error": "Failed to exchange token with Lichess.", "detail": token_resp.text},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -131,12 +132,18 @@ def lichess_oauth_exchange(request):
         user.lichess_username = lichess_username
         user.save(update_fields=["lichess_username"])
 
+    expires_in = token_data.get("expires_in")
+    expires_at = (
+        timezone.now() + timedelta(seconds=expires_in) if expires_in else None
+    )
+
     LichessToken.objects.update_or_create(
         user=user,
         defaults={
             "access_token": access_token,
             "token_type": token_data.get("token_type", "Bearer"),
             "scope": token_data.get("scope", ""),
+            "expires_at": expires_at,
         },
     )
 
