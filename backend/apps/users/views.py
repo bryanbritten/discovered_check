@@ -4,7 +4,8 @@ import requests
 from django.conf import settings
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -13,6 +14,10 @@ from .models import LichessToken, User, UserSession
 from .serializers import UserSerializer
 
 logger = logging.getLogger(__name__)
+
+
+class AuthRateThrottle(AnonRateThrottle):
+    rate = "5/minute"
 
 LICHESS_TOKEN_URL = "https://lichess.org/api/token"
 LICHESS_ACCOUNT_URL = "https://lichess.org/api/account"
@@ -45,6 +50,7 @@ def _issue_jwt_response(user: User, set_session_cookie: bool = False) -> Respons
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def lichess_oauth_exchange(request):
     """
     Exchange a Lichess OAuth authorization code (with PKCE code_verifier) for JWT tokens.
@@ -90,7 +96,7 @@ def lichess_oauth_exchange(request):
             token_resp.text,
         )
         return Response(
-            {"error": "Failed to exchange token with Lichess."},
+            {"error": "Failed to exchange token with Lichess.", "detail": token_resp.text},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -145,6 +151,7 @@ def lichess_oauth_exchange(request):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def session_resume(request):
     """
     Issue fresh JWTs using the persistent session cookie, without requiring the
@@ -183,6 +190,7 @@ def session_resume(request):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([AuthRateThrottle])
 def logout(request):
     """
     Invalidate the persistent session cookie (full logout).
