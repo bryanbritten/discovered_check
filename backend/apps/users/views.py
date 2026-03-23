@@ -61,6 +61,12 @@ def lichess_oauth_exchange(request):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    if redirect_uri != settings.OAUTH_REDIRECT_URI:
+        return Response(
+            {"error": "Invalid redirect_uri."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
     token_resp = requests.post(
         LICHESS_TOKEN_URL,
         data={
