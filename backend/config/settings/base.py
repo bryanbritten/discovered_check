@@ -118,3 +118,7 @@ OAUTH_REDIRECT_URI = env("OAUTH_REDIRECT_URI", default="http://localhost:5173/au
 
 # Persistent session cookie (separate from Django's session framework)
 PERSISTENT_SESSION_COOKIE_NAME = "dc_session"
+
+# ── Security headers ──────────────────────────────────────────────
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
