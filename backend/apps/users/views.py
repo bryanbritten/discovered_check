@@ -108,7 +108,7 @@ def lichess_oauth_exchange(request):
             token_resp.text,
         )
         return Response(
-            {"error": "Failed to exchange token with Lichess.", "detail": token_resp.text},
+            {"error": "Failed to exchange token with Lichess."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
