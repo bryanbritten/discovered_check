@@ -1,3 +1,5 @@
+import logging
+
 import requests
 from django.conf import settings
 from django.utils import timezone
@@ -9,6 +11,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import LichessToken, User, UserSession
 from .serializers import UserSerializer
+
+logger = logging.getLogger(__name__)
 
 LICHESS_TOKEN_URL = "https://lichess.org/api/token"
 LICHESS_ACCOUNT_URL = "https://lichess.org/api/account"
@@ -74,8 +78,13 @@ def lichess_oauth_exchange(request):
     )
 
     if not token_resp.ok:
+        logger.warning(
+            "Lichess token exchange failed (status=%s): %s",
+            token_resp.status_code,
+            token_resp.text,
+        )
         return Response(
-            {"error": "Failed to exchange token with Lichess.", "detail": token_resp.text},
+            {"error": "Failed to exchange token with Lichess."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
